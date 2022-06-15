@@ -14,12 +14,78 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.javarush</groupId>
+            <artifactId>desktop-game-engine</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/desktop-game-engine.jar</systemPath>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>18.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.5.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <!-- Usual compilation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/libs
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>libs/</classpathPrefix>
+                            <mainClass>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>./</Class-Path>
+                            <Rsrc-Class-Path>com.javarush.games.racer.RacerGame</Rsrc-Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -29,6 +95,16 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/StrangeTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
             <!-- Run java-fx app over Maven -->
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -39,6 +115,30 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>
 
+        <resources>
+            <resource>
+                <directory>src/main/java</directory> <!-- указываем директорию с кодом-->
+                <includes> <!-- УКАЗЫВАЕМ ЧТО СЧИТАТЬ РЕСУРСАМИ-->
+                    <include>**/*.java</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource> <!-- УКАЗЫВАЕМ ДИРЕКТОРИЮ С ДОП. РЕСУРСАМИ -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes> <!-- ДОБАВЛЯЕМ ЛЮБЫЕ ФАЙЛЫ ИЗ ЛЮБЫХ ПАПОК-->
+                    <include>**/*</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+            <resource> <!-- указываем директорию с зависимостями -->
+                <directory>${project.build.directory}/dependency/</directory>
+                <includes>
+                    <include>*.jar</include>
+                </includes>
+                <targetPath>lib/</targetPath>
+            </resource>
+        </resources>
+    </build>
 </project>
