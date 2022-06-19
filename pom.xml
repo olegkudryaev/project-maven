@@ -37,32 +37,51 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.8.2</version>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>4.5.1</version>
-        </dependency>
+
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory> <!-- указываем директорию с кодом-->
+                <includes> <!-- УКАЗЫВАЕМ ЧТО СЧИТАТЬ РЕСУРСАМИ-->
+                    <include>**/*.java</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource> <!-- УКАЗЫВАЕМ ДИРЕКТОРИЮ С ДОП. РЕСУРСАМИ -->
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes> <!-- ДОБАВЛЯЕМ ЛЮБЫЕ ФАЙЛЫ ИЗ ЛЮБЫХ ПАПОК-->
+                    <include>**/*</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+            <resource> <!-- указываем директорию с зависимостями -->
+                <directory>${project.build.directory}/libs/</directory>
+                <targetPath>lib/</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <!-- Usual compilation -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <outputDirectory>
+                        ${project.build.directory}/libs
+                    </outputDirectory>
+                    <includeScope>compile</includeScope>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>
-                                ${project.build.directory}/libs
-                            </outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -79,8 +98,8 @@
                             <mainClass>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>./</Class-Path>
                             <Rsrc-Class-Path>com.javarush.games.racer.RacerGame</Rsrc-Class-Path>
+                            <Class-Path>./</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -115,30 +134,5 @@
                 </configuration>
             </plugin>
         </plugins>
-
-        <resources>
-            <resource>
-                <directory>src/main/java</directory> <!-- указываем директорию с кодом-->
-                <includes> <!-- УКАЗЫВАЕМ ЧТО СЧИТАТЬ РЕСУРСАМИ-->
-                    <include>**/*.java</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource> <!-- УКАЗЫВАЕМ ДИРЕКТОРИЮ С ДОП. РЕСУРСАМИ -->
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes> <!-- ДОБАВЛЯЕМ ЛЮБЫЕ ФАЙЛЫ ИЗ ЛЮБЫХ ПАПОК-->
-                    <include>**/*</include>
-                </includes>
-                <targetPath>META-INF</targetPath>
-            </resource>
-            <resource> <!-- указываем директорию с зависимостями -->
-                <directory>${project.build.directory}/dependency/</directory>
-                <includes>
-                    <include>*.jar</include>
-                </includes>
-                <targetPath>lib/</targetPath>
-            </resource>
-        </resources>
     </build>
 </project>
